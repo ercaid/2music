@@ -1,55 +1,40 @@
 <template>
   <v-app>
-    <v-app-bar
-      app
-      color="primary"
-      dark
-    >
-      <div class="d-flex align-center">
-        <v-img
-          alt="Vuetify Logo"
-          class="shrink mr-2"
-          contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
-          transition="scale-transition"
-          width="40"
-        />
+    <!-- 顶部导航条 -->
+    <NavBar />
 
-        <v-img
-          alt="Vuetify Name"
-          class="shrink mt-1 hidden-sm-and-down"
-          contain
-          min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-          width="100"
-        />
-      </div>
-
-      <v-spacer></v-spacer>
-
-      <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-        text
-      >
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
-    </v-app-bar>
-
-    <v-main>
-      <router-view/>
+    <!-- 主内容区 -->
+    <v-main class="main">
+      <!-- 给应用提供合适的间距 -->
+      <!-- <v-container fluid> -->
+      <!-- 如果使用 vue-router -->
+      <router-view></router-view>
+      <!-- </v-container> -->
     </v-main>
+
+    <!-- 底部播放器 -->
+    <!-- <v-footer app> -->
+    <AudioPlayer />
+    <!-- </v-footer> -->
   </v-app>
 </template>
 
 <script>
-
+import NavBar from '@/components/NavBar.vue'
+import AudioPlayer from '@/components/AudioPlayer.vue'
 export default {
   name: 'App',
-
-  data: () => ({
-    //
-  })
+  components: {
+    NavBar,
+    AudioPlayer
+  },
+  data: () => ({})
 }
 </script>
+
+<style lang="scss" scoped>
+.main {
+  margin: 0 16px;
+  padding-bottom: 64px !important;
+}
+</style>
