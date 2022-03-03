@@ -2,9 +2,9 @@
   <v-bottom-sheet v-model="sheet" fullscreen>
     <template v-slot:activator="{ on, attrs }">
       <!-- 播放器 -->
-      <audio ref="audio" @pause="onPause" @play="onPlay" @timeupdate="onTimeupdate" @loadedmetadata="onLoadedmetadata" :src="songUrl"></audio>
+      <audio autoplay ref="audio" @pause="onPause" @play="onPlay" @timeupdate="onTimeupdate" @loadedmetadata="onLoadedmetadata" :src="songUrl"></audio>
 
-      <div class="player" :class="{ hide: sheet }" v-bind="attrs" v-on="on">
+      <div class="player" :class="{ hide: sheet }" v-bind="attrs" v-on="on" v-show="songUrl != ''">
         <div class="left">
           <div class="pic">
             <img :src="songDetail.al.picUrl" :class="{ run: audio.playing }" alt="" />
@@ -121,21 +121,36 @@ export default {
     },
     changeProgress(val) {
       this.$refs.audio.currentTime = val
-    }
-  },
-  async created() {
-    let res = await songDetail(1923482571)
-    if (res.data.code === 200) {
-      this.songDetail = res.data.songs[0]
-    }
-    res = await songUrl(1923482571)
-    if (res.data.code === 200) {
-      this.songUrl = res.data.data[0].url || ''
+    },
+    async getSong(id) {
+      if (id) {
+        this.audio.playing = false
+        let res = await songDetail(id)
+        if (res.data.code === 200) {
+          this.songDetail = res.data.songs[0]
+        }
+        res = await songUrl(id)
+        if (res.data.code === 200) {
+          this.songUrl = res.data.data[0].url || ''
+        }
+      }
     }
   },
   computed: {
     progress() {
       return (this.audio.currentTime / this.audio.maxTime) * 100
+    },
+    songId() {
+      return this.$store.state.songId
+    }
+  },
+  watch: {
+    songId: {
+      // 侦听器的处理函数
+      handler(val) {
+        this.getSong(val)
+      },
+      immediate: true
     }
   }
 }
@@ -147,8 +162,8 @@ export default {
   position: fixed;
   align-items: center;
   justify-content: space-between;
-  bottom: 0px;
-  transition: 0.5s;
+  bottom: -2px;
+  transition: all 0.5s;
   z-index: 4;
   height: 53px;
   width: 100%;
@@ -162,7 +177,7 @@ export default {
       width: 40px;
       height: 40px;
       border-radius: 50% !important;
-      margin: -18px 9px 0 16px;
+      margin: -20px 9px 0 16px;
       overflow: hidden;
       text-align: center;
       img {

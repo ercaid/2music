@@ -13,6 +13,11 @@ const routes = [
     path: '/rank',
     name: 'rank',
     component: () => import('../views/RankView.vue')
+  },
+  {
+    path: '/list/:id',
+    name: 'list',
+    component: () => import('../views/ListView.vue')
   }
 ]
 

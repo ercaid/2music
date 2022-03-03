@@ -6,7 +6,7 @@
     </v-navigation-drawer>
 
     <!-- 顶部导航栏 -->
-    <v-app-bar color="rgba(255, 255, 255, 0.95)" flat app>
+    <v-app-bar class="app-bar" :color="bgcolor ? bgcolor : 'rgba(255, 255, 255, 0.95)'" flat app>
       <!-- 首页搜索条 -->
       <v-app-bar-nav-icon v-if="type === 'home'" color="#2f2f2f" @click="drawer = !drawer"></v-app-bar-nav-icon>
       <div v-if="type === 'home'" class="search-container" @click="handleSearch">
@@ -16,8 +16,8 @@
       <!-- 其他 -->
       <div v-else class="other-container">
         <div class="head">
-          <v-icon color="#2f2f2f" @click="handleBack">mdi-arrow-left</v-icon>
-          <v-toolbar-title class="title">{{ name }}</v-toolbar-title>
+          <v-icon class="icon" :color="white ? '#fff' : '#2f2f2f'" @click="handleBack">mdi-arrow-left</v-icon>
+          <v-toolbar-title class="title" :class="{ fontwhite: white }">{{ name }}</v-toolbar-title>
         </div>
       </div>
     </v-app-bar>
@@ -26,7 +26,7 @@
 
 <script>
 export default {
-  props: ['type', 'name'],
+  props: ['type', 'name', 'bgcolor', 'white'],
   data() {
     return {
       drawer: null
@@ -66,6 +66,15 @@ export default {
       font-size: 16px;
       font-weight: 600;
       color: #333333;
+    }
+    .icon {
+      margin-top: 4px;
+      width: 24px;
+      height: 24px;
+    }
+    .fontwhite {
+      background: rgba(255, 255, 255, 0);
+      color: #fff;
     }
   }
 }

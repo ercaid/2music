@@ -5,13 +5,14 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    songId: 0
   },
-  getters: {
-  },
+  getters: {},
   mutations: {
+    SET_ID(state, payload) {
+      state.songId = payload
+    }
   },
-  actions: {
-  },
-  modules: {
-  }
+  actions: {},
+  modules: {}
 })

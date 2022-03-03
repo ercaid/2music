@@ -1,6 +1,6 @@
 <template>
   <v-sheet class="player-container" height="100vh">
-    <div class="bg" :style="`background-image: url('${songDetail.al.picUrl}');`"></div>
+    <div class="bg" :style="{ backgroundImage: `url(${songDetail.al.picUrl})` }"></div>
     <div class="head">
       <v-icon color="#fff" @click="handleHide" class="hide" size="40">mdi-chevron-down</v-icon>
 
@@ -45,13 +45,13 @@
       <!-- 播放暂停，上一首下一首 -->
       <div class="third-row">
         <v-btn class="item" icon plain>
-          <v-icon color="rgba(255,255,255,0.8)" size="25">mdi-skip-previous</v-icon>
+          <v-icon color="rgba(255,255,255,0.8)" size="28">mdi-skip-previous</v-icon>
         </v-btn>
         <v-btn class="item" icon plain @click="handlePlay">
-          <v-icon color="#fff" size="25">{{ playing ? 'mdi-pause' : 'mdi-play' }}</v-icon>
+          <v-icon color="#fff" size="28">{{ playing ? 'mdi-pause' : 'mdi-play' }}</v-icon>
         </v-btn>
         <v-btn class="item" icon plain>
-          <v-icon color="rgba(255,255,255,0.8)" size="25">mdi-skip-next</v-icon>
+          <v-icon color="rgba(255,255,255,0.8)" size="28">mdi-skip-next</v-icon>
         </v-btn>
       </div>
     </div>
@@ -127,7 +127,7 @@ export default {
           context.strokeStyle = `rgba(255, 255, 255, ${item.alpha})`
           // 画圆：x坐标, y坐标, 半径, 起始角, 结束角
           context.beginPath()
-          context.arc(127.5, 127.5, item.radius, item.deg, item.deg + 0.003)
+          context.arc(127.5, 127.5, item.radius, item.deg, item.deg + 0.005)
           context.closePath()
           // 画完了之后增加半径
           item.radius += Math.random() * item.speed
@@ -171,19 +171,6 @@ export default {
 
 <style lang="scss" scoped>
 .player-container {
-  .bg {
-    position: fixed;
-    left: 0;
-    top: 0;
-    height: 100%;
-    width: 100%;
-    background-size: cover;
-    background-position: center 0;
-    // filter: blur(20px);
-    // transform: scale(1.2);
-    overflow: hidden;
-    z-index: 0;
-  }
   // 遮罩层
   .bg::before {
     content: '';
@@ -192,17 +179,6 @@ export default {
     position: absolute;
     background-color: rgba(0, 0, 0, 0.6);
     z-index: 1;
-  }
-  .bg:after {
-    content: '';
-    width: 110%;
-    height: 110%;
-    position: absolute;
-    left: -5%;
-    top: -5%;
-    /* 从父元素继承 background 属性的设置 */
-    background: inherit;
-    filter: blur(20px);
   }
   .head {
     color: #fff;
@@ -292,7 +268,7 @@ export default {
     .second-row {
       margin: 0 18px;
       display: flex;
-      font-size: 7px;
+      font-size: 10px;
       color: #aaaaaa;
       justify-content: space-between;
 
@@ -312,7 +288,7 @@ export default {
       }
 
       .item:nth-child(2) {
-        padding: 6px;
+        padding: 18px;
         border: 1px solid #fff;
         border-radius: 50%;
       }

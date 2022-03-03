@@ -7,7 +7,7 @@
       <!-- 官方榜 -->
       <div class="guanfang">
         <div class="title">官方榜</div>
-        <div class="guanfang-rank-item" v-for="(item, index) in topList" :key="index">
+        <div class="guanfang-rank-item" v-for="(item, index) in topList" :key="index" @click="handleToList(item.id)">
           <div class="update">{{ item.updateFrequency }}</div>
           <div class="left">
             <div class="name">{{ item.name }}</div>
@@ -58,12 +58,21 @@ export default {
         this.listDetail[i].length = 3
       }
     }
+  },
+  methods: {
+    // 跳转到歌单页
+    handleToList(id) {
+      this.$router.push('/list/' + id)
+    }
   }
 }
 </script>
 
 <style lang="scss" scoped>
 .rank-container {
+  margin: 0 16px;
+  margin-top: 56px;
+  padding-bottom: 64px;
   .rank-content {
     margin-top: 14px;
     .guanfang {

@@ -15,3 +15,11 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.home-container {
+  margin: 0 16px;
+  margin-top: 56px;
+  padding-bottom: 64px;
+}
+</style>
