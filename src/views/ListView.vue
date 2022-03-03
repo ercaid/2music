@@ -3,7 +3,7 @@
     <div class="bg"></div>
     <NavBar name="歌单" bgcolor="rgba(255,255,255,0)" white="true" />
     <div class="bg" :style="{ backgroundImage: `url(${list.coverImgUrl})` }"></div>
-    <div class="container">
+    <div class="container" v-if="!isLoading">
       <!-- 头部信息区域 -->
       <div class="head">
         <div class="list-head-img">
@@ -62,19 +62,25 @@ export default {
         coverImgUrl: '',
         name: '',
         creator: {},
-        description: ''
-      }
+        description: '',
+        tracks: []
+      },
+      isLoading: true
     }
   },
   async created() {
     const res = await listDetail(this.$route.params.id)
     if (res.data.code === 200) {
       this.list = res.data.playlist
+      this.isLoading = false
     }
   },
   methods: {
     handleToPlay(id) {
       this.$store.commit('SET_ID', id)
+      // 替换当前播放列表
+      // 深拷贝，解决修改播放列表时歌单的数据也会变的问题
+      this.$store.commit('INIT_List', JSON.parse(JSON.stringify(this.list.tracks)))
     }
   }
 }
@@ -118,7 +124,7 @@ export default {
       color: #fff;
       font-size: 14px;
       line-height: 24px;
-      width: 200px;
+      width: 55vw;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -141,13 +147,13 @@ export default {
         width: 24px;
         height: 24px;
         border-radius: 50%;
-        margin-right: 14px;
+        margin-right: 10px;
       }
     }
 
     div:nth-child(3) {
       font-size: 10px;
-      width: 200px;
+      width: 55vw;
       // 最多显示两行
       display: -webkit-box;
       -webkit-line-clamp: 2;

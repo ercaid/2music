@@ -42,3 +42,10 @@ export const songUrl = (id) => {
     }
   })
 }
+
+// 获取轮播图
+export const banner = () => {
+  return request({
+    url: '/banner?type=1'
+  })
+}

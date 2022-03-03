@@ -3,7 +3,7 @@
     <!-- 顶部导航条 -->
     <NavBar name="排行榜" />
     <!-- 内容区 -->
-    <div class="rank-content">
+    <div class="rank-content" v-if="!isLoading">
       <!-- 官方榜 -->
       <div class="guanfang">
         <div class="title">官方榜</div>
@@ -36,27 +36,34 @@ export default {
   data() {
     return {
       topList: [],
-      listDetail: []
+      listDetail: [],
+      isLoading: true,
+      snackbar: true
     }
   },
   async created() {
-    const res = await topList()
-    if (res.data.code === 200) {
-      this.topList = res.data.list
-      // 只要前四项
-      this.topList.length = 4
-      let temp = null
-      temp = this.topList[3]
-      this.topList[3] = this.topList[2]
-      this.topList[2] = temp
-    }
-    for (let i = 0; i < this.topList.length; i++) {
-      const res = await listDetail(this.topList[i].id)
+    try {
+      const res = await topList()
       if (res.data.code === 200) {
-        this.listDetail.push(res.data.playlist.tracks)
-        // 只要前三项
-        this.listDetail[i].length = 3
+        this.topList = res.data.list
+        // 只要前四项
+        this.topList.length = 4
+        let temp = null
+        temp = this.topList[3]
+        this.topList[3] = this.topList[2]
+        this.topList[2] = temp
       }
+      for (let i = 0; i < this.topList.length; i++) {
+        const res = await listDetail(this.topList[i].id)
+        if (res.data.code === 200) {
+          this.listDetail.push(res.data.playlist.tracks)
+          // 只要前三项
+          this.listDetail[i].length = 3
+        }
+      }
+      this.isLoading = false
+    } catch (err) {
+      // console.log(err)
     }
   },
   methods: {
@@ -73,6 +80,7 @@ export default {
   margin: 0 16px;
   margin-top: 56px;
   padding-bottom: 64px;
+
   .rank-content {
     margin-top: 14px;
     .guanfang {

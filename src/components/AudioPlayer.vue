@@ -2,7 +2,7 @@
   <v-bottom-sheet v-model="sheet" fullscreen>
     <template v-slot:activator="{ on, attrs }">
       <!-- 播放器 -->
-      <audio autoplay ref="audio" @pause="onPause" @play="onPlay" @timeupdate="onTimeupdate" @loadedmetadata="onLoadedmetadata" :src="songUrl"></audio>
+      <audio autoplay ref="audio" @pause="onPause" @ended="onEnded" @play="onPlay" @timeupdate="onTimeupdate" @loadedmetadata="onLoadedmetadata" :src="songUrl"></audio>
 
       <div class="player" :class="{ hide: sheet }" v-bind="attrs" v-on="on" v-show="songUrl != ''">
         <div class="left">
@@ -25,6 +25,7 @@
             </v-btn>
           </v-progress-circular>
 
+          <!-- 播放列表 -->
           <div class="text-center">
             <v-dialog v-model="songList" width="500">
               <template v-slot:activator="{ on, attrs }">
@@ -32,15 +33,27 @@
                   <v-icon size="26" color="#363636">mdi-playlist-music</v-icon>
                 </v-btn>
               </template>
-              <v-card>
-                <v-card-text> </v-card-text>
-                <v-card-text> 播放列表 </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn color="primary" text @click="songList = false"> 关闭 </v-btn>
-                </v-card-actions>
-              </v-card>
+              <div class="playlist">
+                <div class="title">
+                  当前播放 <span>({{ playList.length }})</span>
+                </div>
+                <div class="play-list-item" v-for="(item, index) in playList" :key="index" :class="{ active: item.id === currentId }" @click="getSong(item.id)">
+                  <div class="name">
+                    <v-icon size="12" class="icon" color="#d04b42" v-if="item.id === currentId">mdi-music-note</v-icon>
+                    <span>{{ item.name }}</span>
+                    <span class="artist" :class="{ active: item.id === currentId }">
+                      -
+                      <span v-for="(i, d) in item.ar" :key="d">
+                        {{ i.name }}
+                        <span v-if="d != item.ar.length - 1">/</span>
+                      </span>
+                    </span>
+                  </div>
+                  <div class="delete" @click.stop="handleDelete(index, item.id)">
+                    <v-icon color="#b4b4b4" size="18">mdi-close</v-icon>
+                  </div>
+                </div>
+              </div>
             </v-dialog>
           </div>
         </div>
@@ -82,7 +95,8 @@ export default {
         },
         name: ''
       },
-      songUrl: ''
+      songUrl: '',
+      currentId: 0
     }
   },
   methods: {
@@ -110,6 +124,24 @@ export default {
     onPause() {
       this.audio.playing = false
     },
+    // 当音频结束
+    onEnded() {
+      // 自动播放下一首
+      let nextId = 0
+      for (let i = 0; i < this.playList.length; i++) {
+        // 如果是列表最后一首，播放第一首
+        if (this.currentId === this.playList[this.playList.length - 1].id) {
+          nextId = this.playList[0].id
+          break
+        }
+        // 播放下一首
+        if (this.currentId === this.playList[i].id) {
+          nextId = this.playList[i + 1].id
+          break
+        }
+      }
+      this.getSong(nextId)
+    },
     // 当timeupdate事件大概每秒一次，用来更新音频流的当前播放时间
     onTimeupdate(res) {
       this.audio.currentTime = res.target.currentTime
@@ -124,6 +156,7 @@ export default {
     },
     async getSong(id) {
       if (id) {
+        this.currentId = id
         this.audio.playing = false
         let res = await songDetail(id)
         if (res.data.code === 200) {
@@ -134,6 +167,16 @@ export default {
           this.songUrl = res.data.data[0].url || ''
         }
       }
+    },
+    // 删除列表歌曲
+    handleDelete(index, id) {
+      // 如果是正在播放的歌
+      if (id === this.currentId) {
+        this.onEnded()
+      }
+      const list = this.playList
+      list.splice(index, 1)
+      this.$store.commit('INIT_List', list)
     }
   },
   computed: {
@@ -142,6 +185,9 @@ export default {
     },
     songId() {
       return this.$store.state.songId
+    },
+    playList() {
+      return this.$store.state.playList
     }
   },
   watch: {
@@ -224,5 +270,48 @@ export default {
 }
 .hide {
   bottom: -1000px;
+}
+
+.playlist {
+  background-color: #fff;
+  height: 500px;
+  padding: 25px 16px;
+  overflow: scroll;
+
+  .title {
+    margin-bottom: 40px;
+    font-size: 18px;
+
+    span {
+      font-size: 11px;
+      color: #808080;
+    }
+  }
+
+  .play-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+    padding-bottom: 25px;
+
+    .name {
+      width: 65vw;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      .artist {
+        color: #808080;
+        font-size: 10px;
+      }
+      .icon {
+        margin-right: 5px;
+      }
+    }
+  }
+
+  .active {
+    color: #d04b42 !important;
+  }
 }
 </style>
