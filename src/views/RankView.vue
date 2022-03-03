@@ -1,5 +1,7 @@
 <template>
   <div class="rank-container">
+    <!-- 顶部导航条 -->
+    <NavBar name="排行榜" />
     <!-- 内容区 -->
     <div class="rank-content">
       <!-- 官方榜 -->
@@ -26,7 +28,11 @@
 
 <script>
 import { topList, listDetail } from '@/common/neteaseApi.js'
+import NavBar from '@/components/NavBar.vue'
 export default {
+  components: {
+    NavBar
+  },
   data() {
     return {
       topList: [],

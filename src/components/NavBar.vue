@@ -6,18 +6,18 @@
     </v-navigation-drawer>
 
     <!-- 顶部导航栏 -->
-    <v-app-bar color="rgba(255, 255, 255, 0.95)" :flat="true" app>
+    <v-app-bar color="rgba(255, 255, 255, 0.95)" flat app>
       <!-- 首页搜索条 -->
-      <v-app-bar-nav-icon v-if="path === '/'" color="#2f2f2f" @click="drawer = !drawer"></v-app-bar-nav-icon>
-      <div v-if="path === '/'" class="search-container" @click="handleSearch">
+      <v-app-bar-nav-icon v-if="type === 'home'" color="#2f2f2f" @click="drawer = !drawer"></v-app-bar-nav-icon>
+      <div v-if="type === 'home'" class="search-container" @click="handleSearch">
         <v-icon size="18" color="#959595">mdi-magnify</v-icon>
         <span>搜索歌曲</span>
       </div>
-      <!-- 排行榜 -->
-      <div v-else-if="path === '/rank'" class="rank-container">
+      <!-- 其他 -->
+      <div v-else class="other-container">
         <div class="head">
           <v-icon color="#2f2f2f" @click="handleBack">mdi-arrow-left</v-icon>
-          <v-toolbar-title class="title">排行榜</v-toolbar-title>
+          <v-toolbar-title class="title">{{ name }}</v-toolbar-title>
         </div>
       </div>
     </v-app-bar>
@@ -25,12 +25,11 @@
 </template>
 
 <script>
-// import '@/assets/iconfont/iconfont.css'
 export default {
+  props: ['type', 'name'],
   data() {
     return {
-      drawer: null,
-      path: null
+      drawer: null
     }
   },
   methods: {
@@ -38,12 +37,6 @@ export default {
     // 返回
     handleBack() {
       this.$router.back()
-    }
-  },
-  watch: {
-    // 监听路由变化
-    $route(to, from) {
-      this.path = to.path
     }
   }
 }
@@ -65,7 +58,7 @@ export default {
   }
 }
 
-.rank-container {
+.other-container {
   .head {
     display: flex;
     .title {

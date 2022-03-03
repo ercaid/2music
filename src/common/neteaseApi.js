@@ -27,6 +27,18 @@ export const listDetail = (id) => {
 export const songDetail = (ids) => {
   return request({
     url: '/song/detail',
-    ids
+    params: {
+      ids: ids
+    }
+  })
+}
+
+// 获取歌曲链接
+export const songUrl = (id) => {
+  return request({
+    url: '/song/url',
+    params: {
+      id: id
+    }
   })
 }
