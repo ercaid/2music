@@ -43,6 +43,16 @@ export const songUrl = (id) => {
   })
 }
 
+// 获取歌词
+export const songLyric = (id) => {
+  return request({
+    url: '/lyric',
+    params: {
+      id: id
+    }
+  })
+}
+
 // 获取轮播图
 export const banner = () => {
   return request({

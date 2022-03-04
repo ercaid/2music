@@ -39,7 +39,7 @@
                 </div>
                 <div class="play-list-item" v-for="(item, index) in playList" :key="index" :class="{ active: item.id === currentId }" @click="getSong(item.id)">
                   <div class="name">
-                    <v-icon size="12" class="icon" color="#d04b42" v-if="item.id === currentId">mdi-music-note</v-icon>
+                    <v-icon size="12" class="icon" color="#fb362e" v-if="item.id === currentId">mdi-music-note</v-icon>
                     <span>{{ item.name }}</span>
                     <span class="artist" :class="{ active: item.id === currentId }">
                       -
@@ -64,18 +64,22 @@
       @changeProgress="changeProgress"
       @hide="hide"
       @changePlayState="startPlayOrPause"
+      @playNext="onEnded"
+      @playPrevious="playPrevious"
       :progress="progress"
       :currentTime="audio.currentTime"
       :maxTime="audio.maxTime"
       :playing="audio.playing"
       :songDetail="songDetail"
+      :lyricIndex="audio.lyricIndex"
+      :songLyric="songLyric"
     />
   </v-bottom-sheet>
 </template>
 
 <script>
 import FullPlayer from '@/components/FullPlayer.vue'
-import { songDetail, songUrl } from '@/common/neteaseApi.js'
+import { songDetail, songUrl, songLyric } from '@/common/neteaseApi.js'
 export default {
   components: {
     FullPlayer
@@ -87,7 +91,8 @@ export default {
       audio: {
         playing: false,
         currentTime: 0,
-        maxTime: 0
+        maxTime: 0,
+        lyricIndex: 0
       },
       songDetail: {
         al: {
@@ -96,7 +101,8 @@ export default {
         name: ''
       },
       songUrl: '',
-      currentId: 0
+      currentId: 0,
+      songLyric: []
     }
   },
   methods: {
@@ -142,9 +148,36 @@ export default {
       }
       this.getSong(nextId)
     },
+    // 播放上一首
+    playPrevious() {
+      let lastId = 0
+      for (let i = 0; i < this.playList.length; i++) {
+        // 如果是列表第一首，播放最后一首
+        if (this.currentId === this.playList[0].id) {
+          lastId = this.playList[this.playList.length - 1].id
+          break
+        }
+        if (this.currentId === this.playList[i].id) {
+          lastId = this.playList[i - 1].id
+          break
+        }
+      }
+      this.getSong(lastId)
+    },
     // 当timeupdate事件大概每秒一次，用来更新音频流的当前播放时间
     onTimeupdate(res) {
       this.audio.currentTime = res.target.currentTime
+
+      // 匹配歌词
+      for (let i = 0; i < this.songLyric.length; i++) {
+        if (this.audio.currentTime > this.songLyric[this.songLyric.length - 1].time) {
+          this.audio.lyricIndex = this.songLyric.length - 1
+          break
+        }
+        if (this.audio.currentTime > this.songLyric[i].time && this.audio.currentTime < this.songLyric[i + 1].time) {
+          this.audio.lyricIndex = i
+        }
+      }
     },
     // 当加载语音流元数据完成后，会触发该事件的回调函数
     // 语音元数据主要是语音的长度之类的数据
@@ -158,15 +191,57 @@ export default {
       if (id) {
         this.currentId = id
         this.audio.playing = false
+        // 获取歌曲详情
         let res = await songDetail(id)
         if (res.data.code === 200) {
           this.songDetail = res.data.songs[0]
         }
+        // 获取歌曲链接
         res = await songUrl(id)
         if (res.data.code === 200) {
           this.songUrl = res.data.data[0].url || ''
         }
+        // 获取歌词
+        res = await songLyric(id)
+        if (res.data.code === 200) {
+          const lyric = res.data.lrc.lyric
+          // 匹配每行
+          const regNewLine = /\n/
+          const lineArr = lyric.split(regNewLine) // 每行歌词的数组
+          // 匹配时间
+          const regTime = /\[\d{2}:\d{2}.\d{2,3}\]/
+          const songLyric = []
+          lineArr.forEach((item) => {
+            if (item === '') return
+            const obj = {}
+            const time = item.match(regTime)
+            obj.lyric = item.split(']')[1].trim() === '' ? '' : item.split(']')[1].trim()
+            obj.time = time ? this.formatLyricTime(time[0].slice(1, time[0].length - 1)) : 0
+            obj.uid = Math.random().toString().slice(-6)
+            if (obj.lyric === '') {
+              // console.log('这一行没有歌词')
+            } else {
+              songLyric.push(obj)
+            }
+          })
+          this.songLyric = songLyric
+        }
       }
+    },
+    // 格式化歌词时间
+    formatLyricTime(time) {
+      // 格式化歌词的时间 转换成 sss:ms
+      const regMin = /.*:/
+      const regSec = /:.*\./
+      const regMs = /\./
+
+      const min = parseInt(time.match(regMin)[0].slice(0, 2))
+      let sec = parseInt(time.match(regSec)[0].slice(1, 3))
+      const ms = time.slice(time.match(regMs).index + 1, time.match(regMs).index + 3)
+      if (min !== 0) {
+        sec += min * 60
+      }
+      return Number(sec + '.' + ms)
     },
     // 删除列表歌曲
     handleDelete(index, id) {
@@ -311,7 +386,7 @@ export default {
   }
 
   .active {
-    color: #d04b42 !important;
+    color: #fb362e !important;
   }
 }
 </style>

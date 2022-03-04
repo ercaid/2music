@@ -15,10 +15,17 @@
       </div>
     </div>
 
-    <div class="img">
+    <!-- 歌曲图片 -->
+    <div class="img" v-show="!showLyric" @click="showLyric = !showLyric">
       <!-- 宇宙尘埃 -->
       <canvas id="dust" height="255" width="255" style="position: absolute; z-index: 1"></canvas>
       <img :src="songDetail.al.picUrl" :class="{ run: playing }" alt="" />
+    </div>
+    <!-- 歌词 -->
+    <div class="lyric" v-show="showLyric" @click="showLyric = !showLyric">
+      <div class="detail-lyric-wrap" :style="{ transform: 'translateY(' + -(lyricIndex - 5) * 40 + 'px)' }">
+        <div class="item" v-for="(item, index) in songLyric" :key="index" :class="{ active: lyricIndex === index }">{{ item.lyric }}</div>
+      </div>
     </div>
 
     <!-- 底部播放按钮 -->
@@ -44,13 +51,13 @@
       </div>
       <!-- 播放暂停，上一首下一首 -->
       <div class="third-row">
-        <v-btn class="item" icon plain>
+        <v-btn class="item" icon plain @click="handlePrevious">
           <v-icon color="rgba(255,255,255,0.8)" size="28">mdi-skip-previous</v-icon>
         </v-btn>
         <v-btn class="item" icon plain @click="handlePlay">
           <v-icon color="#fff" size="28">{{ playing ? 'mdi-pause' : 'mdi-play' }}</v-icon>
         </v-btn>
-        <v-btn class="item" icon plain>
+        <v-btn class="item" icon plain @click="handleNext">
           <v-icon color="rgba(255,255,255,0.8)" size="28">mdi-skip-next</v-icon>
         </v-btn>
       </div>
@@ -60,10 +67,11 @@
 
 <script>
 export default {
-  props: ['songDetail', 'playing', 'currentTime', 'maxTime', 'progress'],
+  props: ['songDetail', 'playing', 'currentTime', 'maxTime', 'progress', 'lyricIndex', 'songLyric'],
   data() {
     return {
-      curTime: this.progress
+      curTime: this.progress,
+      showLyric: false
     }
   },
   methods: {
@@ -76,6 +84,12 @@ export default {
     handleToggle() {
       const time = parseInt((this.curTime / 100) * this.maxTime)
       this.$emit('changeProgress', time)
+    },
+    handleNext() {
+      this.$emit('playNext')
+    },
+    handlePrevious() {
+      this.$emit('playPrevious')
     },
     // 画宇宙尘埃
     drawDust() {
@@ -127,7 +141,7 @@ export default {
           context.strokeStyle = `rgba(255, 255, 255, ${item.alpha})`
           // 画圆：x坐标, y坐标, 半径, 起始角, 结束角
           context.beginPath()
-          context.arc(127.5, 127.5, item.radius, item.deg, item.deg + 0.005)
+          context.arc(127.5, 127.5, item.radius, item.deg, item.deg + 0.002)
           context.closePath()
           // 画完了之后增加半径
           item.radius += Math.random() * item.speed
@@ -250,6 +264,37 @@ export default {
       animation-play-state: running;
     }
   }
+
+  .lyric {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    z-index: 1;
+    width: 100%;
+    // 显示15行
+    height: 450px;
+    font-size: 15px;
+    overflow: hidden;
+    top: 50%;
+    transform: translateY(-60%);
+    text-align: center;
+    color: #6f6e73;
+
+    .detail-lyric-wrap {
+      transition: 0.5s;
+      .item {
+        height: 40px;
+        line-height: 40px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+      .active {
+        color: #fff;
+      }
+    }
+  }
+
   .buttonList {
     color: #fff;
     position: fixed;

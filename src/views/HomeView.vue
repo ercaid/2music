@@ -42,7 +42,7 @@ export default {
 
   .banner {
     margin: 0 auto;
-    width: 345px;
+    // width: 345px;
     height: 133px !important;
 
     img {

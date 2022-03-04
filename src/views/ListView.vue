@@ -7,6 +7,10 @@
       <!-- 头部信息区域 -->
       <div class="head">
         <div class="list-head-img">
+          <div class="playcount">
+            <v-icon size="16" color="#fff">mdi-play-outline</v-icon>
+            {{ list.playCount | formatCount }}
+          </div>
           <img :src="list.coverImgUrl" />
         </div>
         <div class="list-head-text">
@@ -22,8 +26,7 @@
       <!-- 歌单列表区域 -->
       <div class="list-music">
         <div class="list-music-head">
-          <!-- <v-btn icon class="playall" @click="count++"> -->
-          <v-icon color="#fff" size="2" class="playall">mdi-play</v-icon>
+          <v-icon color="#fff" size="14" class="playall">mdi-play</v-icon>
           <!-- </v-btn> -->
           <span class="play">播放全部</span>
           <span class="all">({{ list.trackCount }})</span>
@@ -107,12 +110,14 @@ export default {
       height: 100%;
     }
 
-    span {
+    .playcount {
       position: absolute;
-      right: 12px;
-      top: 8px;
+      display: flex;
+      align-items: center;
+      right: 8px;
+      top: 4px;
       color: #fff;
-      font-size: 26px;
+      font-size: 10px;
     }
   }
 
@@ -134,7 +139,7 @@ export default {
       display: flex;
       align-items: center;
       margin: 10px 0;
-      font-size: 8px;
+      font-size: 10px;
 
       span {
         width: 120px;
