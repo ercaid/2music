@@ -13,6 +13,16 @@
         <v-icon size="18" color="#959595">mdi-magnify</v-icon>
         <span>搜索歌曲</span>
       </div>
+      <!-- 搜索页 -->
+      <div v-else-if="type === 'search'" class="search-detail-container">
+        <div class="head">
+          <v-icon class="icon" :color="white ? '#fff' : '#2f2f2f'" @click="handleBack">mdi-arrow-left</v-icon>
+          <input type="text" v-model="mySearchWord" @keyup="handleSuggest" @keyup.enter="handleSearchWord" />
+          <v-btn class="close" icon plain @click="handleClear" v-show="mySearchWord !== ''">
+            <v-icon size="18">mdi-close</v-icon>
+          </v-btn>
+        </div>
+      </div>
       <!-- 其他 -->
       <div v-else class="other-container">
         <div class="head">
@@ -26,17 +36,35 @@
 
 <script>
 export default {
-  props: ['type', 'name', 'bgcolor', 'white'],
+  props: ['type', 'name', 'bgcolor', 'white', 'searchWord'],
   data() {
     return {
-      drawer: null
+      drawer: null,
+      mySearchWord: ''
     }
   },
   methods: {
-    handleSearch() {},
+    handleSearch() {
+      this.$router.push('/search')
+    },
+    handleSearchWord() {
+      this.$emit('searchWord', this.mySearchWord)
+    },
+    handleSuggest() {
+      this.$emit('suggest', this.mySearchWord)
+    },
     // 返回
     handleBack() {
       this.$router.back()
+    },
+    handleClear() {
+      this.mySearchWord = ''
+      this.handleSearchWord()
+    }
+  },
+  watch: {
+    searchWord() {
+      this.mySearchWord = this.searchWord
     }
   }
 }
@@ -55,6 +83,25 @@ export default {
 
   span {
     margin-left: 5px;
+  }
+}
+
+.search-detail-container {
+  display: flex;
+  width: 100vw;
+
+  input {
+    font-size: 14px;
+    margin-left: 10px;
+    width: 80vw;
+    outline: none;
+    border-bottom: 1px solid #989898;
+    caret-color: #c4403e;
+  }
+  .close {
+    position: absolute;
+    right: 2.5vw;
+    top: 5px;
   }
 }
 

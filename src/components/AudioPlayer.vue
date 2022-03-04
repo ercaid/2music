@@ -132,37 +132,41 @@ export default {
     },
     // 当音频结束
     onEnded() {
-      // 自动播放下一首
-      let nextId = 0
-      for (let i = 0; i < this.playList.length; i++) {
-        // 如果是列表最后一首，播放第一首
-        if (this.currentId === this.playList[this.playList.length - 1].id) {
-          nextId = this.playList[0].id
-          break
+      if (this.playList.length > 1) {
+        // 自动播放下一首
+        let nextId = 0
+        for (let i = 0; i < this.playList.length; i++) {
+          // 如果是列表最后一首，播放第一首
+          if (this.currentId === this.playList[this.playList.length - 1].id) {
+            nextId = this.playList[0].id
+            break
+          }
+          // 播放下一首
+          if (this.currentId === this.playList[i].id) {
+            nextId = this.playList[i + 1].id
+            break
+          }
         }
-        // 播放下一首
-        if (this.currentId === this.playList[i].id) {
-          nextId = this.playList[i + 1].id
-          break
-        }
+        this.getSong(nextId)
       }
-      this.getSong(nextId)
     },
     // 播放上一首
     playPrevious() {
-      let lastId = 0
-      for (let i = 0; i < this.playList.length; i++) {
-        // 如果是列表第一首，播放最后一首
-        if (this.currentId === this.playList[0].id) {
-          lastId = this.playList[this.playList.length - 1].id
-          break
+      if (this.playList.length > 1) {
+        let lastId = 0
+        for (let i = 0; i < this.playList.length; i++) {
+          // 如果是列表第一首，播放最后一首
+          if (this.currentId === this.playList[0].id) {
+            lastId = this.playList[this.playList.length - 1].id
+            break
+          }
+          if (this.currentId === this.playList[i].id) {
+            lastId = this.playList[i - 1].id
+            break
+          }
         }
-        if (this.currentId === this.playList[i].id) {
-          lastId = this.playList[i - 1].id
-          break
-        }
+        this.getSong(lastId)
       }
-      this.getSong(lastId)
     },
     // 当timeupdate事件大概每秒一次，用来更新音频流的当前播放时间
     onTimeupdate(res) {
@@ -195,6 +199,19 @@ export default {
         let res = await songDetail(id)
         if (res.data.code === 200) {
           this.songDetail = res.data.songs[0]
+        }
+        // 如果没有这首歌，添加到播放列表里面
+        const list = this.playList
+        let find = false
+        for (let i = 0; i < list.length; i++) {
+          if (list[i].id === id) {
+            find = true
+            break
+          }
+        }
+        if (!find) {
+          list.unshift(this.songDetail)
+          this.$store.commit('INIT_List', list)
         }
         // 获取歌曲链接
         res = await songUrl(id)

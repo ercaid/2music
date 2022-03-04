@@ -141,7 +141,7 @@ export default {
           context.strokeStyle = `rgba(255, 255, 255, ${item.alpha})`
           // 画圆：x坐标, y坐标, 半径, 起始角, 结束角
           context.beginPath()
-          context.arc(127.5, 127.5, item.radius, item.deg, item.deg + 0.002)
+          context.arc(127.5, 127.5, item.radius, item.deg, item.deg + 0.003)
           context.closePath()
           // 画完了之后增加半径
           item.radius += Math.random() * item.speed
@@ -197,8 +197,8 @@ export default {
   .head {
     color: #fff;
     .hide {
-      padding-left: 10px;
-      padding-top: 10px;
+      margin-left: 10px;
+      margin-top: 10px;
     }
     .title {
       display: flex;
@@ -278,7 +278,7 @@ export default {
     top: 50%;
     transform: translateY(-60%);
     text-align: center;
-    color: #6f6e73;
+    color: #888888;
 
     .detail-lyric-wrap {
       transition: 0.5s;
