@@ -290,6 +290,13 @@ export default {
       },
       immediate: true
     }
+  },
+  created() {
+    // 获取收藏歌曲列表
+    const list = JSON.parse(localStorage.getItem('likeList')) || []
+    // 自动选择列表第一首歌
+    this.getSong(list[0].id)
+    this.$store.commit('INIT_List', list)
   }
 }
 </script>

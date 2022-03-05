@@ -2,8 +2,11 @@
   <div class="list">
     <div class="bg"></div>
     <NavBar name="歌单" bgcolor="rgba(255,255,255,0)" white="true" />
-    <div class="bg" :style="{ backgroundImage: `url(${list.coverImgUrl})` }"></div>
+    <div class="loading" v-if="isLoading">
+      <v-progress-circular :width="3" color="red" indeterminate></v-progress-circular>
+    </div>
     <div class="container" v-if="!isLoading">
+      <div class="bg" :style="{ backgroundImage: `url(${list.coverImgUrl})` }"></div>
       <!-- 头部信息区域 -->
       <div class="head">
         <div class="list-head-img">
@@ -72,11 +75,13 @@ export default {
     }
   },
   async created() {
-    const res = await listDetail(this.$route.params.id)
-    if (res.data.code === 200) {
-      this.list = res.data.playlist
-      this.isLoading = false
-    }
+    try {
+      const res = await listDetail(this.$route.params.id)
+      if (res.data.code === 200) {
+        this.list = res.data.playlist
+        this.isLoading = false
+      }
+    } catch (err) {}
   },
   methods: {
     handleToPlay(id) {

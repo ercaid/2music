@@ -2,8 +2,11 @@
   <div class="rank-container">
     <!-- 顶部导航条 -->
     <NavBar name="排行榜" />
+    <div class="loading" v-if="isLoading">
+      <v-progress-circular :width="3" color="red" indeterminate></v-progress-circular>
+    </div>
     <!-- 内容区 -->
-    <div class="rank-content" v-if="!isLoading">
+    <div class="rank-content" v-else>
       <!-- 官方榜 -->
       <div class="guanfang">
         <div class="title">官方榜</div>
@@ -59,9 +62,9 @@ export default {
           this.listDetail.push(res.data.playlist.tracks)
           // 只要前三项
           this.listDetail[i].length = 3
+          this.isLoading = false
         }
       }
-      this.isLoading = false
     } catch (err) {
       // console.log(err)
     }

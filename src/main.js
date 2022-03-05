@@ -9,9 +9,9 @@ Vue.config.productionTip = false
 // 全局过滤器
 Vue.filter('formatCount', (value) => {
   if (value >= 10000 && value <= 100000000) {
-    value /= 1000
+    value /= 10000
     return value.toFixed(1) + '万'
-  } else if (value > 10000000) {
+  } else if (value > 100000000) {
     value /= 100000000
     return value.toFixed(1) + '亿'
   } else {

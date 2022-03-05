@@ -19,7 +19,7 @@
           <v-icon class="icon" :color="white ? '#fff' : '#2f2f2f'" @click="handleBack">mdi-arrow-left</v-icon>
           <input type="text" v-model="mySearchWord" @keyup="handleSuggest" @keyup.enter="handleSearchWord" />
           <v-btn class="close" icon plain @click="handleClear" v-show="mySearchWord !== ''">
-            <v-icon size="18">mdi-close</v-icon>
+            <v-icon size="22">mdi-close</v-icon>
           </v-btn>
         </div>
       </div>
@@ -91,8 +91,9 @@ export default {
   width: 100vw;
 
   input {
-    font-size: 14px;
+    font-size: 15px;
     margin-left: 10px;
+    padding-right: 18px;
     width: 80vw;
     outline: none;
     border-bottom: 1px solid #989898;

@@ -31,8 +31,9 @@
     <!-- 底部播放按钮 -->
     <div class="buttonList">
       <div class="first-row">
-        <v-btn class="item" icon plain>
-          <v-icon color="rgba(255,255,255,0.8)" size="25">mdi-heart-outline</v-icon>
+        <v-btn class="item" icon plain @click="handleLike">
+          <v-icon color="red" size="25" v-if="isLike">mdi-heart</v-icon>
+          <v-icon color="rgba(255,255,255,0.8)" size="25" v-else>mdi-heart-outline</v-icon>
         </v-btn>
         <v-btn class="item" icon plain>
           <v-icon color="rgba(255,255,255,0.8)" size="25">mdi-message-text-outline</v-icon>
@@ -71,10 +72,30 @@ export default {
   data() {
     return {
       curTime: this.progress,
-      showLyric: false
+      showLyric: false,
+      isLike: false
     }
   },
   methods: {
+    // 添加收藏
+    handleLike() {
+      this.isLike = !this.isLike
+      const list = JSON.parse(localStorage.getItem('likeList')) || []
+      // 添加到收藏列表中
+      if (this.isLike) {
+        list.unshift(this.songDetail)
+        localStorage.setItem('likeList', JSON.stringify(list))
+      } else {
+        // 在收藏列表中删除这首歌
+        for (let i = 0; i < list.length; i++) {
+          if (list[i].id === this.songDetail.id) {
+            list.splice(i, 1)
+            localStorage.setItem('likeList', JSON.stringify(list))
+            break
+          }
+        }
+      }
+    },
     handleHide() {
       this.$emit('hide', false)
     },
@@ -178,6 +199,24 @@ export default {
   watch: {
     progress(val) {
       this.curTime = val
+    },
+    songDetail: {
+      handler(val) {
+        // 换歌的时候看看这首歌有没有被收藏
+        const list = JSON.parse(localStorage.getItem('likeList')) || []
+        let find = false
+        for (let i = 0; i < list.length; i++) {
+          if (list[i].id === val.id) {
+            find = true
+            this.isLike = true
+            break
+          }
+        }
+        if (!find) {
+          this.isLike = false
+        }
+      },
+      immediate: true
     }
   }
 }

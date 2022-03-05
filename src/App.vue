@@ -50,4 +50,17 @@ export default {
   background: inherit;
   filter: blur(20px);
 }
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 200px;
+  height: 200px;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+}
 </style>
