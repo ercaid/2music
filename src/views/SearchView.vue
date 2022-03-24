@@ -92,15 +92,18 @@
               <v-card color="basil" flat v-else-if="item === 'QQ音乐'">
                 <v-card-text>
                   <div class="search-result">
-                    <div class="search-result-item" v-for="(item, index) in searchListQQ" :key="index">
+                    <div class="search-result-item" v-for="(item, index) in searchListQQ" :key="index" @click="handleQQ(item.songmid)">
                       <div class="search-result-word">
-                        <div>{{ item.songname }}</div>
+                        <div v-html="item.nameShow"></div>
                         <div>
-                          <span v-for="(i, d) in item.singer" :key="d"
-                            >{{ i.name }}
+                          <span v-for="(i, d) in item.singer" :key="d">
+                            <span v-html="i.nameShow"></span>
                             <span v-if="d != item.singer.length - 1">{{ ' / ' }}</span>
                           </span>
-                          <span v-if="item.albumname">{{ ' - ' + item.albumname }}</span>
+                          <span v-if="item.albumname">
+                            <span> - </span>
+                            <span v-html="item.albumnameShow"></span>
+                          </span>
                         </div>
                       </div>
                       <v-icon color="#b4b4b4" size="18">mdi-dots-vertical</v-icon>
@@ -119,7 +122,7 @@
 <script>
 import NavBar from '@/components/NavBar.vue'
 import { searchHot, searchSuggest, searchWord } from '@/common/neteaseApi.js'
-import { searchWord as searchWordQQ } from '@/common/QQApi.js'
+import { searchWordQQ } from '@/common/QQApi.js'
 export default {
   components: {
     NavBar
@@ -197,6 +200,10 @@ export default {
     handleToPlay(id) {
       this.$store.commit('SET_ID', id)
     },
+    handleQQ(id) {
+      id = 'QQ' + id
+      this.$store.commit('SET_ID', id)
+    },
     async getSearchList(word) {
       let res = await searchWord(word)
       if (res.data.code === 200) {
@@ -212,12 +219,22 @@ export default {
             })
           })
         }
-        console.log(this.searchList)
-
         this.searchType = 3
       }
       res = await searchWordQQ(word)
       this.searchListQQ = res.data.data.list
+      // 将匹配部分进行样式替换
+      if (this.searchListQQ) {
+        this.searchListQQ.forEach((item) => {
+          item.nameShow = item.songname.replace(this.searchWord, "<span style='color:#235790;'>" + this.searchWord + '</span>')
+          if (item.albumname) {
+            item.albumnameShow = item.albumname.replace(this.searchWord, "<span style='color:#235790;'>" + this.searchWord + '</span>')
+          }
+          item.singer.forEach((i) => {
+            i.nameShow = i.name.replace(this.searchWord, "<span style='color:#235790;'>" + this.searchWord + '</span>')
+          })
+        })
+      }
     }
   },
   watch: {

@@ -7,7 +7,12 @@
       <div class="player" :class="{ hide: sheet }" v-bind="attrs" v-on="on" v-show="songUrl != ''">
         <div class="left">
           <div class="pic">
-            <img :src="songDetail.al.picUrl" :class="{ run: audio.playing }" alt="" />
+            <img
+              :src="songDetail.al.picUrl"
+              onerror="this.src='https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%3A%2F%2Fdingyue.ws.126.net%2F2021%2F0329%2Fab0b8e52j00qqpqd7005bc000j600j6m.jpg%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1650703616&t=53edd91f089a0817b5322dfc66058f1d'"
+              :class="{ run: audio.playing }"
+              alt=""
+            />
           </div>
           <div class="content">
             {{ songDetail.name + ' - ' }}
@@ -81,6 +86,7 @@
 <script>
 import FullPlayer from '@/components/FullPlayer.vue'
 import { songDetail, songUrl, songLyric } from '@/common/neteaseApi.js'
+import { songDetailQQ, songUrlQQ, songLyricQQ } from '@/common/QQApi.js'
 export default {
   components: {
     FullPlayer
@@ -194,55 +200,134 @@ export default {
     },
     async getSong(id) {
       if (id) {
-        this.currentId = id
-        this.audio.playing = false
-        // 获取歌曲详情
-        let res = await songDetail(id)
-        if (res.data.code === 200) {
-          this.songDetail = res.data.songs[0]
-        }
-        // 如果没有这首歌，添加到播放列表里面
-        const list = this.playList
-        let find = false
-        for (let i = 0; i < list.length; i++) {
-          if (list[i].id === id) {
-            find = true
-            break
+        if (id.toString().slice(0, 2) === 'QQ') {
+          // QQ音乐链接
+          this.currentId = id
+          this.audio.playing = false
+          // 获取歌曲详情
+          id = id.substring(2)
+          let res = await songDetailQQ(id)
+          res = res.data
+          const obj = {
+            al: {
+              picUrl: `https://y.gtimg.cn/music/photo_new/T002R300x300M000${res.data.track_info.album.mid}.jpg`
+            },
+            name: res.data.track_info.name,
+            ar: res.data.track_info.singer,
+            id: 'QQ' + id
           }
-        }
-        if (!find) {
-          list.unshift(this.songDetail)
-          this.$store.commit('INIT_List', list)
-        }
-        // 获取歌曲链接
-        res = await songUrl(id)
-        if (res.data.code === 200) {
-          this.songUrl = res.data.data[0].url || ''
-        }
-        // 获取歌词
-        res = await songLyric(id)
-        if (res.data.code === 200) {
-          const lyric = res.data.lrc.lyric
-          // 匹配每行
-          const regNewLine = /\n/
-          const lineArr = lyric.split(regNewLine) // 每行歌词的数组
-          // 匹配时间
-          const regTime = /\[\d{2}:\d{2}.\d{2,3}\]/
-          const songLyric = []
-          lineArr.forEach((item) => {
-            if (item === '') return
-            const obj = {}
-            const time = item.match(regTime)
-            obj.lyric = item.split(']')[1].trim() === '' ? '' : item.split(']')[1].trim()
-            obj.time = time ? this.formatLyricTime(time[0].slice(1, time[0].length - 1)) : 0
-            obj.uid = Math.random().toString().slice(-6)
-            if (obj.lyric === '') {
-              // console.log('这一行没有歌词')
-            } else {
-              songLyric.push(obj)
+          if (res.result === 100) {
+            this.songDetail = obj
+          }
+          // 如果没有这首歌，添加到播放列表里面
+          const list = this.playList
+          let find = false
+          for (let i = 0; i < list.length; i++) {
+            if (list[i].id === 'QQ' + id) {
+              find = true
+              break
             }
-          })
-          this.songLyric = songLyric
+          }
+          if (!find) {
+            list.unshift(this.songDetail)
+            this.$store.commit('INIT_List', list)
+          }
+
+          res = await songUrlQQ(id)
+          if (res.data.result === 100) {
+            this.songUrl = res.data.data || ''
+          }
+
+          // 获取歌词
+          res = await songLyricQQ(id)
+          if (res.data.result === 100) {
+            try {
+              const lyric = res.data.data.lyric
+              // 匹配每行
+              const regNewLine = /\n/
+              let lineArr = lyric.split(regNewLine) // 每行歌词的数组
+              if (lineArr[0].slice(0, 3) === '[ti') {
+                lineArr = lineArr.splice(5)
+              }
+              // 匹配时间
+              const regTime = /\[\d{2}:\d{2}.\d{2,3}\]/
+              const songLyric = []
+              lineArr.forEach((item) => {
+                if (item === '') return
+                const obj = {}
+                const time = item.match(regTime)
+                obj.lyric = item.split(']')[1].trim() === '' ? '' : item.split(']')[1].trim()
+                obj.time = time ? this.formatLyricTime(time[0].slice(1, time[0].length - 1)) : 0
+                obj.uid = Math.random().toString().slice(-6)
+                if (obj.lyric === '') {
+                  // console.log('这一行没有歌词')
+                } else {
+                  songLyric.push(obj)
+                }
+              })
+              this.songLyric = songLyric
+            } catch (err) {
+              this.songLyric = [
+                {
+                  lyric: '暂无歌词',
+                  time: 0,
+                  uid: '8888'
+                }
+              ]
+            }
+          }
+        } else {
+          // 网易云链接
+          this.currentId = id
+          this.audio.playing = false
+          // 获取歌曲详情
+          let res = await songDetail(id)
+          if (res.data.code === 200) {
+            this.songDetail = res.data.songs[0]
+          }
+          // 如果没有这首歌，添加到播放列表里面
+          const list = this.playList
+          let find = false
+          for (let i = 0; i < list.length; i++) {
+            if (list[i].id === id) {
+              find = true
+              break
+            }
+          }
+          if (!find) {
+            list.unshift(this.songDetail)
+            this.$store.commit('INIT_List', list)
+          }
+          // 获取歌曲链接
+          res = await songUrl(id)
+          if (res.data.code === 200) {
+            this.songUrl = res.data.data[0].url || ''
+          }
+          // 获取歌词
+          res = await songLyric(id)
+          if (res.data.code === 200) {
+            const lyric = res.data.lrc.lyric
+            // 匹配每行
+            const regNewLine = /\n/
+            const lineArr = lyric.split(regNewLine) // 每行歌词的数组
+            // 匹配时间
+            const regTime = /\[\d{2}:\d{2}.\d{2,3}\]/
+            const songLyric = []
+            lineArr.forEach((item) => {
+              if (item === '') return
+              const obj = {}
+              const time = item.match(regTime)
+              obj.lyric = item.split(']')[1].trim() === '' ? '' : item.split(']')[1].trim()
+              obj.time = time ? this.formatLyricTime(time[0].slice(1, time[0].length - 1)) : 0
+              obj.uid = Math.random().toString().slice(-6)
+              if (obj.lyric === '') {
+                // console.log('这一行没有歌词')
+              } else {
+                songLyric.push(obj)
+              }
+            })
+            this.songLyric = songLyric
+          }
         }
       }
     },
@@ -368,12 +453,18 @@ export default {
     }
   }
 }
+
 .hide {
   bottom: -1000px;
 }
 
+::v-deep .v-dialog {
+  box-shadow: none;
+}
+
 .playlist {
   background-color: #fff;
+  border-radius: 25px;
   height: 500px;
   padding: 25px 16px;
   overflow: scroll;

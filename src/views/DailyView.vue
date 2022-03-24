@@ -46,6 +46,7 @@
 import NavBar from '@/components/NavBar.vue'
 import { dailySong } from '@/common/neteaseApi.js'
 export default {
+  name: 'DailyView',
   components: {
     NavBar
   },
@@ -68,7 +69,9 @@ export default {
       const res = await dailySong()
       if (res.data.code === 200) {
         this.dailyList = res.data.data.dailySongs
-        this.isLoading = false
+        setTimeout(() => {
+          this.isLoading = false
+        }, 500)
       }
     } catch (err) {
       throw new Error(err)

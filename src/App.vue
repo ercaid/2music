@@ -2,7 +2,7 @@
   <v-app>
     <!-- 主内容区 -->
     <div class="main">
-      <keep-alive include="HomeView,RankView">
+      <keep-alive include="HomeView,RankView,DailyView">
         <router-view></router-view>
       </keep-alive>
     </div>

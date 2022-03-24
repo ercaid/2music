@@ -19,7 +19,12 @@
     <div class="img" v-show="!showLyric" @click="showLyric = !showLyric">
       <!-- 宇宙尘埃 -->
       <canvas id="dust" height="255" width="255" style="position: absolute; z-index: 1"></canvas>
-      <img :src="songDetail.al.picUrl" :class="{ run: playing }" alt="" />
+      <img
+        :src="songDetail.al.picUrl"
+        onerror="this.src='https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fnimg.ws.126.net%2F%3Furl%3Dhttp%3A%2F%2Fdingyue.ws.126.net%2F2021%2F0329%2Fab0b8e52j00qqpqd7005bc000j600j6m.jpg%26thumbnail%3D650x2147483647%26quality%3D80%26type%3Djpg&refer=http%3A%2F%2Fnimg.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1650703616&t=53edd91f089a0817b5322dfc66058f1d'"
+        :class="{ run: playing }"
+        alt=""
+      />
     </div>
     <!-- 歌词 -->
     <div class="lyric" v-show="showLyric" @click="showLyric = !showLyric">
