@@ -1,8 +1,20 @@
 <template>
   <div id="nav-bar">
     <!-- 侧边导航抽屉 -->
-    <v-navigation-drawer v-model="drawer" app>
-      <!--  -->
+    <v-navigation-drawer v-model="drawer" app class="drawer">
+      <div class="user" @click="handleUser">
+        <div class="avatar">
+          <img :src="userinfo.picurl ? userinfo.picurl : require('../assets/user.jpeg')" alt="" />
+        </div>
+        <div class="name" v-if="!userinfo.name">
+          立即登录
+          <v-icon color="#000">mdi-chevron-right</v-icon>
+        </div>
+        <div class="name" v-else>
+          {{ userinfo.name }}
+        </div>
+      </div>
+      <div class="logout" @click="logout" v-if="userinfo.name">退出登录</div>
     </v-navigation-drawer>
 
     <!-- 顶部导航栏 -->
@@ -40,10 +52,19 @@ export default {
   data() {
     return {
       drawer: null,
-      mySearchWord: ''
+      mySearchWord: '',
+      picurl: require('@/assets/user.jpeg')
     }
   },
   methods: {
+    async logout() {
+      this.$store.dispatch('logout')
+    },
+    handleUser() {
+      if (!this.userinfo.islogin) {
+        this.$router.push('/login')
+      }
+    },
     handleSearch() {
       this.$router.push('/search')
     },
@@ -66,11 +87,53 @@ export default {
     searchWord() {
       this.mySearchWord = this.searchWord
     }
+  },
+  computed: {
+    userinfo() {
+      return this.$store.state.userinfo
+    }
   }
 }
 </script>
 
 <style lang="scss" scoped>
+.drawer {
+  padding: 15px;
+  .user {
+    display: flex;
+    align-items: center;
+    .avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      overflow: hidden;
+      img {
+        width: 100%;
+        height: 100%;
+      }
+    }
+    .name {
+      display: flex;
+      align-items: center;
+      padding-left: 10px;
+      font-size: 14px;
+    }
+  }
+  .logout {
+    width: calc(100% - 30px);
+    box-shadow: 0px 1px 5px #eee;
+    color: #dd2b21;
+    border-radius: 10px;
+    position: fixed;
+    height: 40px;
+    line-height: 40px;
+    bottom: 15px;
+    left: 0;
+    right: 0;
+    margin: auto;
+    text-align: center;
+  }
+}
 .search-container {
   background-color: #f8f8f8;
   border-radius: 20px;

@@ -68,12 +68,13 @@
 
 <script>
 export default {
-  props: ['songDetail', 'playing', 'currentTime', 'maxTime', 'progress', 'lyricIndex', 'songLyric'],
+  props: ['songDetail', 'playing', 'currentTime', 'maxTime', 'progress', 'lyricIndex', 'songLyric', 'sheet'],
   data() {
     return {
       curTime: this.progress,
       showLyric: false,
-      isLike: false
+      isLike: false,
+      timer: null
     }
   },
   methods: {
@@ -113,7 +114,7 @@ export default {
       this.$emit('playPrevious')
     },
     // 画宇宙尘埃
-    drawDust() {
+    drawDust(val) {
       // 配置项
       // 粒子数目
       const particleNum = 1000
@@ -172,13 +173,15 @@ export default {
       }
 
       // 更新点
-      setInterval(() => {
-        run(ctx)
-      }, 50)
+      if (val) {
+        this.timer = setInterval(() => {
+          run(ctx)
+        }, 50)
+      } else {
+        clearInterval(this.timer)
+        this.timer = null
+      }
     }
-  },
-  mounted() {
-    this.drawDust()
   },
   filters: {
     // 将整数转换成 分：秒的格式
@@ -199,6 +202,14 @@ export default {
   watch: {
     progress(val) {
       this.curTime = val
+    },
+    sheet: {
+      handler(val) {
+        this.$nextTick(() => {
+          this.drawDust(val)
+        })
+      },
+      immediate: true
     },
     songDetail: {
       handler(val) {
@@ -312,6 +323,7 @@ export default {
     width: 100%;
     // 显示15行
     height: 450px;
+    padding: 0 16px;
     font-size: 15px;
     overflow: hidden;
     top: 50%;

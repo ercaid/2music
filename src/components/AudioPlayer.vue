@@ -73,6 +73,7 @@
       :songDetail="songDetail"
       :lyricIndex="audio.lyricIndex"
       :songLyric="songLyric"
+      :sheet="sheet"
     />
   </v-bottom-sheet>
 </template>
@@ -378,7 +379,7 @@ export default {
   overflow: scroll;
 
   .title {
-    margin-bottom: 40px;
+    margin-bottom: 20px;
     font-size: 18px;
 
     span {

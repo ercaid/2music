@@ -1,6 +1,5 @@
 <template>
   <div class="list">
-    <div class="bg"></div>
     <NavBar name="歌单" bgcolor="rgba(255,255,255,0)" white="true" />
     <div class="loading" v-if="isLoading">
       <v-progress-circular :width="3" color="red" indeterminate></v-progress-circular>
@@ -28,9 +27,8 @@
       </div>
       <!-- 歌单列表区域 -->
       <div class="list-music">
-        <div class="list-music-head">
+        <div class="list-music-head" @click="handleToPlay(list.tracks[0].id)">
           <v-icon color="#fff" size="14" class="playall">mdi-play</v-icon>
-          <!-- </v-btn> -->
           <span class="play">播放全部</span>
           <span class="all">({{ list.trackCount }})</span>
         </div>
@@ -81,7 +79,9 @@ export default {
         this.list = res.data.playlist
         this.isLoading = false
       }
-    } catch (err) {}
+    } catch (err) {
+      throw new Error(err)
+    }
   },
   methods: {
     handleToPlay(id) {

@@ -1,10 +1,33 @@
 import { baseNeteaseUrl as baseUrl } from './config.js'
 import axios from 'axios'
+import store from '@/store'
+import { diffTokenTime } from '../utils/auth'
 
 const request = axios.create({
   baseURL: baseUrl,
   timeout: 5000
 })
+
+// 请求拦截器
+// 为每个请求添加上 cookie 信息
+request.interceptors.request.use(
+  (config) => {
+    if (localStorage.getItem('cookie')) {
+      if (diffTokenTime()) {
+        store.dispatch('logout')
+        return Promise.reject(new Error('cookie 失效了'))
+      }
+    }
+    config.params = {
+      ...config.params,
+      cookie: localStorage.getItem('cookie')
+    }
+    return config
+  },
+  (error) => {
+    return Promise.reject(new Error(error))
+  }
+)
 
 // 获取榜单列表摘要
 export const topList = () => {
@@ -92,5 +115,44 @@ export const searchSuggest = (keywords) => {
 export const suggestList = () => {
   return request({
     url: '/personalized?limit=9'
+  })
+}
+
+// 获取每日推荐歌单
+export const dailyList = () => {
+  return request({
+    url: '/recommend/resource'
+  })
+}
+
+// 登录
+export const login = (phone, password) => {
+  return request({
+    url: '/login/cellphone',
+    params: {
+      phone: phone,
+      password: password
+    }
+  })
+}
+
+// 登录状态
+export const loginState = () => {
+  return request({
+    url: '/login/status'
+  })
+}
+
+// 退出登录
+export const logout = () => {
+  return request({
+    url: '/logout'
+  })
+}
+
+// 每日推荐
+export const dailySong = () => {
+  return request({
+    url: '/recommend/songs'
   })
 }

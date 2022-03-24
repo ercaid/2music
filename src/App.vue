@@ -2,7 +2,9 @@
   <v-app>
     <!-- 主内容区 -->
     <div class="main">
-      <router-view></router-view>
+      <keep-alive include="HomeView,RankView">
+        <router-view></router-view>
+      </keep-alive>
     </div>
 
     <!-- 底部播放器 -->
@@ -16,17 +18,11 @@ export default {
   name: 'App',
   components: {
     AudioPlayer
-  },
-  data: () => ({})
+  }
 }
 </script>
 
 <style lang="scss">
-// .main {
-//   margin: 0 16px;
-//   margin-top: 56px;
-//   padding-bottom: 64px;
-// }
 // 公共样式
 .bg {
   position: fixed;

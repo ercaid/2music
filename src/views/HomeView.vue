@@ -7,27 +7,45 @@
     </div>
     <!-- 内容区 -->
     <div class="container" v-else>
-      <v-carousel cycle v-model="model" class="banner" :show-arrows="false" delimiter-icon="mdi-minus" hide-delimiter-background hide-delimiters height="150">
-        <v-carousel-item v-for="(item, index) in banners" :key="index">
-          <img :src="item.pic" alt="" />
-        </v-carousel-item>
+      <!-- 轮播图 -->
+      <v-carousel cycle v-model="model" class="banner" :show-arrows="false" delimiter-icon="mdi-minus" hide-delimiter-background hide-delimiters height="38.88vw">
+        <v-carousel-item v-for="(item, index) in banners" :src="item.pic" :key="index"> </v-carousel-item>
       </v-carousel>
-      <div class="rank" @click="handleToRank">
-        <div class="img">
-          <v-icon color="#fd3b41">mdi-trending-up</v-icon>
-        </div>
-        排行榜
-      </div>
-
-      <!-- 每日推荐歌单 -->
-      <div class="suggest-list-container">
-        <div class="head">推荐歌单</div>
-        <v-chip-group class="item-wrap">
-          <div class="item" v-for="(item, index) in suggestList" :key="index" @click="handleToList(item.id)">
-            <img :src="item.picUrl" alt="" />
-            <div class="name">{{ item.name }}</div>
+      <div class="link">
+        <div class="rank" @click="handleTo('/rank')">
+          <div class="img">
+            <v-icon color="#fd3b41">mdi-trending-up</v-icon>
           </div>
-        </v-chip-group>
+          排行榜
+        </div>
+        <div class="rank" @click="handleTo('/daily')">
+          <div class="img">
+            <v-icon color="#fd3b41">mdi-calendar-range</v-icon>
+          </div>
+          日推
+        </div>
+      </div>
+      <div class="song-list">
+        <!-- 每日推荐歌单 -->
+        <div class="suggest-list-container">
+          <div class="head">推荐歌单</div>
+          <v-chip-group class="item-wrap">
+            <div class="item" v-for="(item, index) in suggestList" :key="index" @click="handleToList(item.id)">
+              <img :src="item.picUrl" alt="" />
+              <div class="name">{{ item.name }}</div>
+            </div>
+          </v-chip-group>
+        </div>
+        <!-- 私人雷达歌单 -->
+        <div class="suggest-list-container" v-if="userinfo.name">
+          <div class="head">{{ userinfo.name }}的私人雷达</div>
+          <v-chip-group class="item-wrap">
+            <div class="item" v-for="(item, index) in dailyList" :key="index" @click="handleToList(item.id)">
+              <img :src="item.picUrl" alt="" />
+              <div class="name">{{ item.name }}</div>
+            </div>
+          </v-chip-group>
+        </div>
       </div>
     </div>
   </div>
@@ -35,7 +53,7 @@
 
 <script>
 import NavBar from '@/components/NavBar.vue'
-import { banner, suggestList } from '@/common/neteaseApi.js'
+import { banner, suggestList, dailyList } from '@/common/neteaseApi.js'
 export default {
   name: 'HomeView',
   components: {
@@ -46,6 +64,7 @@ export default {
       banners: [],
       model: 0,
       suggestList: [],
+      dailyList: [],
       isLoading: true
     }
   },
@@ -58,9 +77,15 @@ export default {
       res = await suggestList()
       if (res.data.code === 200) {
         this.suggestList = res.data.result
-        this.isLoading = false
+        if (!this.userinfo.name) {
+          this.isLoading = false
+        } else {
+          this.getPersonalList()
+        }
       }
-    } catch (err) {}
+    } catch (err) {
+      throw new Error(err)
+    }
   },
   methods: {
     // 跳转到歌单页
@@ -68,8 +93,28 @@ export default {
       this.$router.push('/list/' + id)
     },
     // 跳转到排行榜
-    handleToRank() {
-      this.$router.push('/rank')
+    handleTo(url) {
+      this.$router.push(url)
+    },
+    // 私人雷达
+    async getPersonalList() {
+      const res = await dailyList()
+      if (res.data.code === 200) {
+        this.dailyList = res.data.recommend
+        this.isLoading = false
+      }
+    }
+  },
+  watch: {
+    userinfo() {
+      if (this.userinfo.name) {
+        this.getPersonalList()
+      }
+    }
+  },
+  computed: {
+    userinfo() {
+      return this.$store.state.userinfo
     }
   }
 }
@@ -84,10 +129,10 @@ export default {
   .banner {
     margin: 0 auto;
     text-align: center;
+  }
 
-    img {
-      width: 100%;
-    }
+  .link {
+    display: flex;
   }
 
   .rank {
@@ -95,6 +140,7 @@ export default {
     font-size: 10px;
     width: 45px;
     text-align: center;
+    margin-right: 20px;
 
     .img {
       line-height: 45px;
@@ -106,10 +152,10 @@ export default {
       margin-bottom: 5px;
     }
   }
-
-  .suggest-list-container {
+  .song-list {
     margin-top: 40px;
-
+  }
+  .suggest-list-container {
     .head {
       font-size: 16px;
       color: #333333;
@@ -126,7 +172,7 @@ export default {
         width: 108px;
         height: 140px;
         margin: 0 11px;
-        margin-bottom: 22px;
+        margin-bottom: 10px;
 
         img {
           width: 100%;

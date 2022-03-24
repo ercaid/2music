@@ -60,7 +60,7 @@
         <div class="singleSong">
           <div>单曲</div>
         </div>
-        <v-card>
+        <v-card elevation="0">
           <v-tabs v-model="tab" background-color="transparent" color="red" grow>
             <v-tab v-for="item in items" :key="item">
               {{ item }}
@@ -74,13 +74,14 @@
                   <div class="search-result">
                     <div class="search-result-item" v-for="(item, index) in searchList" :key="index" @click="handleToPlay(item.id)">
                       <div class="search-result-word">
-                        <div>{{ item.name }}</div>
+                        <div v-html="item.nameShow"></div>
                         <div>
-                          <span v-for="(i, d) in item.artists" :key="d"
-                            >{{ i.name }}
+                          <span v-for="(i, d) in item.artists" :key="d">
+                            <span v-html="i.nameShow"></span>
                             <span v-if="d != item.artists.length - 1">{{ ' / ' }}</span>
                           </span>
-                          <span>{{ ' - ' + item.album.name }}</span>
+                          <span> - </span>
+                          <span v-html="item.album.nameShow"></span>
                         </div>
                       </div>
                       <v-icon color="#b4b4b4" size="18">mdi-dots-vertical</v-icon>
@@ -201,6 +202,18 @@ export default {
       if (res.data.code === 200) {
         // 默认前30首歌
         this.searchList = res.data.result.songs
+        // 将匹配部分进行样式替换
+        if (this.searchList) {
+          this.searchList.forEach((item) => {
+            item.nameShow = item.name.replace(this.searchWord, "<span style='color:#235790;'>" + this.searchWord + '</span>')
+            item.album.nameShow = item.album.name.replace(this.searchWord, "<span style='color:#235790;'>" + this.searchWord + '</span>')
+            item.artists.forEach((i) => {
+              i.nameShow = i.name.replace(this.searchWord, "<span style='color:#235790;'>" + this.searchWord + '</span>')
+            })
+          })
+        }
+        console.log(this.searchList)
+
         this.searchType = 3
       }
       res = await searchWordQQ(word)
@@ -227,7 +240,7 @@ export default {
   .singleSong {
     font-size: 15px;
     font-weight: 600;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
   }
 
   .search-history {
@@ -277,6 +290,8 @@ export default {
       overflow: hidden;
 
       .toggle {
+        height: 30px;
+        line-height: 30px;
         position: absolute;
         width: 98%;
         bottom: 0;
@@ -287,7 +302,7 @@ export default {
     }
 
     .hide {
-      height: 180px;
+      height: 500px;
     }
 
     .left {
@@ -353,15 +368,15 @@ export default {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-bottom: 15px;
-      margin-bottom: 15px;
+      padding-bottom: 12px;
+      margin-bottom: 12px;
       border-bottom: 1px solid #e4e4e4;
 
       .search-result-word {
         div:nth-child(1) {
-          width: 80vw;
+          width: 75vw;
           font-size: 14px;
-          color: #235790;
+          color: #000;
           margin-bottom: 6px;
           white-space: nowrap;
           overflow: hidden;
@@ -369,7 +384,7 @@ export default {
         }
 
         div:nth-child(2) {
-          width: 80vw;
+          width: 75vw;
           font-size: 11px;
           color: #898989;
           white-space: nowrap;

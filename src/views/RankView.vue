@@ -33,6 +33,7 @@
 import { topList, listDetail } from '@/common/neteaseApi.js'
 import NavBar from '@/components/NavBar.vue'
 export default {
+  name: 'RankView',
   components: {
     NavBar
   },
