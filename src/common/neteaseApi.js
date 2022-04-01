@@ -93,9 +93,10 @@ export const searchHot = () => {
 // 获取搜索结果
 export const searchWord = (keywords) => {
   return request({
-    url: 'search',
+    url: '/search',
     params: {
-      keywords: keywords
+      keywords: keywords,
+      limit: 100
     }
   })
 }

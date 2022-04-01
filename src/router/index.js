@@ -47,6 +47,7 @@ const routes = [
 const router = new VueRouter({
   routes
 })
+
 // 黑名单
 const blackList = ['/daily']
 

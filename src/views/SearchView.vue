@@ -7,7 +7,7 @@
     </div>
     <div class="container" v-else>
       <!-- 历史记录和热搜区 -->
-      <div v-show="searchType === 1">
+      <div class="search-box" v-show="searchType === 1">
         <!-- 历史记录 -->
         <div class="search-history" v-if="searchHistory.length > 0">
           <div class="head">
@@ -46,7 +46,7 @@
       </div>
 
       <!-- 搜索建议 -->
-      <div v-show="searchType === 2">
+      <div class="search-box" v-show="searchType === 2">
         <div class="search-suggest">
           <div class="item" v-for="(item, index) in searchSuggest" :key="index" @click="handleSearch(item.keyword)">
             <v-icon size="18" color="#959595">mdi-magnify</v-icon>
@@ -56,7 +56,8 @@
       </div>
 
       <!-- 搜索列表 -->
-      <div v-show="searchType === 3">
+      <!-- ref="scrollContainer" @scroll.passive="handleScroll" -->
+      <div class="scroll" v-show="searchType === 3">
         <div class="singleSong">
           <div>单曲</div>
         </div>
@@ -71,6 +72,7 @@
             <v-tab-item v-for="item in items" :key="item">
               <v-card color="basil" flat v-if="item === '网易云音乐'">
                 <v-card-text>
+                  <!-- :style="{ paddingTop: topBlankFill + 'px', paddingBottom: bottomBlankFill + 'px' }" -->
                   <div class="search-result">
                     <div class="search-result-item" v-for="(item, index) in searchList" :key="index" @click="handleToPlay(item.id)">
                       <div class="search-result-word">
@@ -139,7 +141,13 @@ export default {
       isHide: true,
       isLoading: true,
       tab: null,
-      items: ['网易云音乐', 'QQ音乐']
+      items: ['网易云音乐', 'QQ音乐'],
+      // 记录单条数据的高度
+      oneHeight: 88,
+      // 容器的最大容积
+      containerSize: 0,
+      // 记录当前滚动的第一个元素的索引
+      startIndex: 0
     }
   },
   async created() {
@@ -155,6 +163,17 @@ export default {
     this.searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || []
   },
   methods: {
+    // 定义滚动行为事件方法
+    handleScroll() {
+      if (this.$refs.scrollContainer.scrollTop >= 150) {
+        this.startIndex = Math.floor((this.$refs.scrollContainer.scrollTop - 150) / this.oneHeight)
+      }
+      console.log(this.startIndex)
+    },
+    // 计算容器的最大容积
+    getSize() {
+      this.containerSize = Math.floor(this.$refs.scrollContainer.offsetHeight / this.oneHeight) + 2
+    },
     handleSearch(item) {
       if (item !== '') {
         this.handleSuggest(item)
@@ -220,6 +239,10 @@ export default {
           })
         }
         this.searchType = 3
+        // this.$nextTick(() => {
+        //   this.getSize()
+        //   console.log(this.$refs.scrollContainer.offsetHeight)
+        // })
       }
       res = await searchWordQQ(word)
       this.searchListQQ = res.data.data.list
@@ -244,20 +267,55 @@ export default {
         this.searchType = 1
       }
     }
+  },
+  computed: {
+    // 容器最后一个元素的索引
+    endIndex() {
+      let endIndex = this.startIndex + this.containerSize
+      if (!this.searchList[endIndex]) {
+        endIndex = this.searchList[this.searchList.length - 1]
+      }
+      return endIndex
+    },
+    // 定义一个待显示的数组列表元素
+    showDataList() {
+      return this.searchList.slice(this.startIndex, this.endIndex)
+    },
+    // 定义上空白的高度
+    topBlankFill() {
+      return this.startIndex * this.oneHeight
+    },
+    // 定义下空白填充高度
+    bottomBlankFill() {
+      return (this.searchList.length - this.endIndex) * this.oneHeight
+    }
   }
 }
 </script>
 
 <style lang="scss" scoped>
 .search-container {
-  margin: 0 16px;
-  margin-top: 60px;
-  padding-bottom: 64px;
+  .search-box {
+    padding: 60px 16px 64px 16px;
+    height: 100vh;
+    overflow: scroll;
+  }
+
+  .scroll {
+    padding: 60px 16px 64px 16px;
+    height: 100vh;
+    overflow: scroll;
+  }
 
   .singleSong {
+    height: 20px;
     font-size: 15px;
     font-weight: 600;
     margin-bottom: 10px;
+  }
+
+  ::v-deep .v-tab {
+    height: 50px;
   }
 
   .search-history {
@@ -385,6 +443,7 @@ export default {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      height: 63px;
       padding-bottom: 12px;
       margin-bottom: 12px;
       border-bottom: 1px solid #e4e4e4;

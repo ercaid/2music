@@ -109,7 +109,13 @@ export default {
       },
       songUrl: '',
       currentId: 0,
-      songLyric: []
+      songLyric: [
+        {
+          lyric: '暂无歌词',
+          time: 0,
+          uid: '8888'
+        }
+      ]
     }
   },
   methods: {
@@ -234,6 +240,7 @@ export default {
           }
 
           res = await songUrlQQ(id)
+          console.log(res.data)
           if (res.data.result === 100) {
             this.songUrl = res.data.data || ''
           }
@@ -380,9 +387,11 @@ export default {
   created() {
     // 获取收藏歌曲列表
     const list = JSON.parse(localStorage.getItem('likeList')) || []
-    // 自动选择列表第一首歌
-    this.getSong(list[0].id)
-    this.$store.commit('INIT_List', list)
+    if (list.length) {
+      // 自动选择列表第一首歌
+      this.getSong(list[0].id)
+      this.$store.commit('INIT_List', list)
+    }
   }
 }
 </script>

@@ -25,7 +25,9 @@ export default {
     },
     async login() {
       if (this.userinfo.phone && this.userinfo.password) {
-        this.$store.dispatch('login', this.userinfo)
+        this.$store.dispatch('login', this.userinfo).catch(() => {
+          this.err = true
+        })
       }
     }
   }

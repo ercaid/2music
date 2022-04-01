@@ -9,7 +9,7 @@
     <div class="container" v-else>
       <!-- 轮播图 -->
       <v-carousel cycle v-model="model" class="banner" :show-arrows="false" delimiter-icon="mdi-minus" hide-delimiter-background hide-delimiters height="38.88vw">
-        <v-carousel-item v-for="(item, index) in banners" :src="item.pic" :key="index"> </v-carousel-item>
+        <v-carousel-item v-for="(item, index) in banners" :src="item.pic" :key="index" @click.stop="handlePlay(item.song)"> </v-carousel-item>
       </v-carousel>
       <div class="link">
         <div class="rank" @click="handleTo('/rank')">
@@ -102,6 +102,12 @@ export default {
       if (res.data.code === 200) {
         this.dailyList = res.data.recommend
         this.isLoading = false
+      }
+    },
+    // banner歌曲播放
+    handlePlay(song) {
+      if (song) {
+        this.$store.commit('SET_ID', song.id)
       }
     }
   },

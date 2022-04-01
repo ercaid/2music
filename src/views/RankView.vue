@@ -15,7 +15,7 @@
           <div class="left">
             <div class="name">{{ item.name }}</div>
             <div class="imgs">
-              <img v-for="(i, d) in listDetail[index]" :key="d" :src="i.al.picUrl" alt="" />
+              <img v-for="(i, d) in listDetail[index]" :key="d" :src="i.al.picUrl" alt="" ref="imgs" />
             </div>
           </div>
           <div class="right">

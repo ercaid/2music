@@ -14,6 +14,37 @@
           {{ userinfo.name }}
         </div>
       </div>
+      <div class="box">
+        <v-dialog v-model="likeListOpen" width="500">
+          <template v-slot:activator="{ on, attrs }">
+            <div class="item" v-bind="attrs" v-on="on" @click="getLikeList">
+              <v-icon color="#ff3a3b" size="18" class="heart">mdi-heart</v-icon>
+              <div class="content">我喜欢的音乐</div>
+              <v-icon color="#dbdbdb" size="18" class="right">mdi-chevron-right</v-icon>
+            </div>
+          </template>
+          <v-card class="playlist">
+            <div class="title">
+              喜欢 <span>({{ likeList.length }})</span>
+            </div>
+            <div class="play-list-item" v-for="(item, index) in likeList" :key="index">
+              <div class="name">
+                <span>{{ item.name }}</span>
+                <span class="artist">
+                  -
+                  <span v-for="(i, d) in item.ar" :key="d">
+                    {{ i.name }}
+                    <span v-if="d != item.ar.length - 1">/</span>
+                  </span>
+                </span>
+              </div>
+              <div class="delete" @click.stop="handleDelete(index)">
+                <v-icon color="#b4b4b4" size="18">mdi-close</v-icon>
+              </div>
+            </div>
+          </v-card>
+        </v-dialog>
+      </div>
       <div class="logout" @click="logout" v-if="userinfo.name">退出登录</div>
     </v-navigation-drawer>
 
@@ -53,7 +84,9 @@ export default {
     return {
       drawer: null,
       mySearchWord: '',
-      picurl: require('@/assets/user.jpeg')
+      picurl: require('@/assets/user.jpeg'),
+      likeListOpen: false,
+      likeList: []
     }
   },
   methods: {
@@ -81,6 +114,14 @@ export default {
     handleClear() {
       this.mySearchWord = ''
       this.handleSearchWord()
+    },
+    handleDelete(index) {
+      this.likeList.splice(index, 1)
+      localStorage.setItem('likeList', JSON.stringify(this.likeList))
+    },
+    getLikeList() {
+      // 获取收藏歌曲列表
+      this.likeList = JSON.parse(localStorage.getItem('likeList')) || []
     }
   },
   watch: {
@@ -99,6 +140,7 @@ export default {
 <style lang="scss" scoped>
 .drawer {
   padding: 15px;
+  background-color: #f6f6f6 !important;
   .user {
     display: flex;
     align-items: center;
@@ -119,10 +161,33 @@ export default {
       font-size: 14px;
     }
   }
+  .box {
+    .item {
+      position: relative;
+      display: flex;
+      margin-top: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      height: 50px;
+      line-height: 50px;
+      padding-left: 18px;
+      font-size: 16px;
+      .heart {
+        margin-right: 11px;
+      }
+      .right {
+        position: absolute;
+        right: 16px;
+        top: 0;
+        bottom: 0;
+      }
+    }
+  }
   .logout {
     width: calc(100% - 30px);
     box-shadow: 0px 1px 5px #eee;
     color: #dd2b21;
+    background-color: #fff;
     border-radius: 10px;
     position: fixed;
     height: 40px;
@@ -132,6 +197,52 @@ export default {
     right: 0;
     margin: auto;
     text-align: center;
+  }
+}
+::v-deep .v-dialog {
+  box-shadow: none;
+}
+.playlist {
+  background-color: #fff;
+  border-radius: 25px !important;
+  height: 500px;
+  padding: 25px 16px;
+  overflow: scroll;
+
+  .title {
+    margin-bottom: 20px;
+    font-size: 18px;
+
+    span {
+      font-size: 11px;
+      color: #808080;
+    }
+  }
+
+  .play-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+    padding-bottom: 25px;
+
+    .name {
+      width: 65vw;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      .artist {
+        color: #808080;
+        font-size: 10px;
+      }
+      .icon {
+        margin-right: 5px;
+      }
+    }
+  }
+
+  .active {
+    color: #fb362e !important;
   }
 }
 .search-container {
